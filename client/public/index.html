@@ -1,0 +1,28 @@
+ <!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Insecure Serialization Demo</title>
+        <!--load axios-->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <!--load the script to handle preferences-->
+        <script src="client.js"></script>
+        <!--load css style sheet-->
+        <link rel="stylesheet" href="styles.css">
+    </head>
+<body>
+    <div>
+        <h1>Secure Software Dev : Insecure Serialization</h1>
+    </div>
+    <div id="login-view">
+        <h2>Welcome! Please sign-in</h2>
+        <button onclick="userLogin()">Log In</button>
+    </div>
+    <div id="user-pref-view" class="hidden">
+        <h3>User Preferences</h3>
+        <p>Name: <span>Thomas</span></p>
+        <p>Role: <span id='role-display' class='role'>member</span></p>
+        <button onclick="userLogout()">Log Out</button>
+    </div>
+</body>
+</html> 

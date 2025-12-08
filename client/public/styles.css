@@ -1,0 +1,32 @@
+/* client/public/styles.css */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #222;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px;
+}
+
+.status-box {
+    background: #333;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 2px solid #555;
+}
+
+.hidden {
+    display: none !important;
+}
