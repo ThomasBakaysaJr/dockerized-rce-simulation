@@ -30,7 +30,7 @@ async function userLogin(loginId) {
         document.getElementById('login-view').classList.add('hidden');
         document.getElementById('user-pref-view').classList.remove('hidden');
     } catch (error) {
-        console.error(`Login Failed: ${error.message}`)
+        console.error(`Login Failed: ${error.message}`);
     }
 }
 
@@ -51,10 +51,12 @@ async function accessAdmin() {
             console.error(`Elevate failed: response is ${response}`);
         }
 
-        console.log(`User elevated = ${response.data.is_elevated}`)
+        if (response.data.is_elevated) {
+            displayAdmin();
+        }
 
     } catch (error) {
-        console.error(`Elevate Failed: ${error.message}`)
+        console.error(`Elevate Failed: ${error.message}`);
     }
 }
 
@@ -63,10 +65,23 @@ function displayUser(userData) {
     document.getElementById('role-display').innerText = userData.role;
 }
 
-function userLogout() {
+function hideUser() {
     document.getElementById('login-view').classList.remove('hidden');
     document.getElementById('user-pref-view').classList.add('hidden');
     document.getElementById('name-display').innerText = '';
     document.getElementById('role-display').innerText = '';
 }
 
+
+function displayAdmin() {
+    document.getElementById('admin-enabled-view').classList.remove('hidden')
+}
+
+function hideAdmin() {
+    document.getElementById('admin-enabled-view').classList.add('hidden')
+}
+
+function userLogout() {
+    hideUser();
+    hideAdmin();
+}
