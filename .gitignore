@@ -3,3 +3,5 @@ insecure_json/server/src/__pycache__
 insecure_json/client/node_modules
 insecure_serialization/server/src/__pycache__
 insecure_serialization/client/node_modules
+secure_app/server/src/__pycache__
+secure_app/client/node_modules

@@ -1,0 +1,33 @@
+ <!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Insecure JSON Demo</title>
+        <!--load axios-->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <!--load the script to handle preferences-->
+        <script src="client.js"></script>
+        <!--load css style sheet-->
+        <link rel="stylesheet" href="styles.css">
+    </head>
+<body>
+    <div>
+        <h1>Secure Software Dev : Insecure JSON</h1>
+    </div>
+    <div id="login-view">
+        <h2>Welcome! Please sign-in</h2>
+        <button onclick="userLogin('0')">Log In : Thomas</button>
+        <button onclick="userLogin('1')">Log In : Evelyn</button>
+    </div>
+    <div id="user-pref-view" class="hidden">
+        <h3>User Preferences</h3>
+        <p>Name: <span id='name-display'>User</span></p>
+        <p>Role: <span id='role-display' class='role'>Role</span></p>
+        <button onclick="userLogout()">Log Out</button>
+        <button onclick="accessAdmin()">Admin Panel</button>
+    </div>
+    <div id="admin-enabled-view" class="hidden">
+        <h2>Admin Escalation Enabled</h2>
+    </div>
+</body>
+</html> 
