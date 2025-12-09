@@ -36,15 +36,12 @@ async function userLogin(loginId) {
 
 async function accessAdmin() {
     try {
-        console.log(`Token is ${token}`)
         config = {
             headers : {
                 // 'Content-Type' : 'application/json',
                 'Authorization' : `Bearer ${token}`
             }
         }
-
-        console.log(config)
 
         const response = await axios.get('access_admin', config);
 

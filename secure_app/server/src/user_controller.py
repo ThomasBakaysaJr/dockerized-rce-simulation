@@ -88,7 +88,7 @@ def create_hmac(user_data) -> hmac:
     hmac_obj = hmac.new(HMAC_KEY, auth_token_bytes, hashlib.sha256)
     return hmac_obj
 
-def compare_hmac(auth_token : hmac, incoming_hmac):
+def compare_hmac(in_encoded_data, in_signature):
     '''
     Crate an hmac for this incoming token and compare it
     to the received hmac.
@@ -98,5 +98,6 @@ def compare_hmac(auth_token : hmac, incoming_hmac):
 
     :return If the two signatures match
     '''
-    new_hmac = create_hmac(auth_token)
-    return hmac.compare_digest(new_hmac.hexdigest(), incoming_hmac)
+    user_data = decode_json(in_encoded_data)
+    new_signature = create_hmac(user_data).hexdigest()
+    return hmac.compare_digest(new_signature, in_signature)

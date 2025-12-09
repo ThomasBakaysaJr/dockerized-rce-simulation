@@ -43,8 +43,9 @@ def access_admin():
     auth_token = auth_header.get('Authorization').split(" ")[1]
     encoded_data, signature = auth_token.split('.')
 
-    # is_admin = usr_ctrl.is_admin(auth_token)
-        
+    # CHECK FOR TAMPERING
+    if not usr_ctrl.compare_hmac(encoded_data, signature):
+        return jsonify({'error': f'Signature mismatch'}), 403
 
     return_data = {
         'is_elevated' : usr_ctrl.is_admin(encoded_data)
