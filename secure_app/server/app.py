@@ -40,8 +40,13 @@ def access_admin():
         return jsonify({'error' : f'Missing Headers'}), 400
     
     # strip Bearer
-    auth_token = auth_header.get('Authorization').split(" ")[1]
-    encoded_data, signature = auth_token.split('.')
+    
+    try:
+        auth_token = auth_header.get('Authorization').split(" ")[1]
+        encoded_data, signature = auth_token.split('.')
+    except ValueError as e:
+        print(f'access_admin: warning: authToken is malformed. Refuting access. Error: {e}')
+        return jsonify({'error': f'AuthToken is malformed.'}), 403
 
     # CHECK FOR TAMPERING
     if not usr_ctrl.compare_hmac(encoded_data, signature):

