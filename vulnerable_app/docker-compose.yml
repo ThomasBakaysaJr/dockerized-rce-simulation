@@ -1,19 +1,22 @@
 services:
-  # # server side
-  # api-server:
-  #   build: ./server
-  #   volumes:
-  #     - ./server:/app
-  #   ports:
-  #     - "5000:5000"
-  #   networks:
-  #     - app-network
+  # server side
+  api-server:
+    build: ./server
+    volumes:
+      - ./server:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
 
   # client side
   client:
     build: ./client
     volumes:
       - ./client:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     networks:

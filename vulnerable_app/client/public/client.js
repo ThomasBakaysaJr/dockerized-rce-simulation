@@ -4,7 +4,7 @@ if (typeof axios === 'undefined') {
     throw new Error("Axios missing.")
 }
 
-const API_URL = 'http://localhost:5000'
+axios.defaults.baseURL = 'http://localhost:5000'
 
 let token = ''
 
@@ -12,21 +12,37 @@ let token = ''
 async function userLogin() {
     try {
         // get user information from backend
-        const response = await axios.post(API_URL/login);
+        sending_data = {
+            'user_id' : '1'
+        }
+        const response = await axios.post('login', sending_data);
         
-        if (!response.data || !reponse.data.token)
+        if (!response.data)
+        {
+            console.error(`Login failed: response is ${response}`);
+        }
 
         token = response.data.token;
+        let userData = response.data.user_pref;
+
+        displayUser(userData);
 
         document.getElementById('login-view').classList.add('hidden');
         document.getElementById('user-pref-view').classList.remove('hidden');
     } catch (error) {
-        console.log(`Login Failed: ${error.message}`)
+        console.error(`Login Failed: ${error.message}`)
     }
+}
+
+function displayUser(userData) {
+    document.getElementById('name-display').innerText = userData.user_name;
+    document.getElementById('role-display').innerText = userData.role;
 }
 
 function userLogout() {
     document.getElementById('login-view').classList.remove('hidden');
     document.getElementById('user-pref-view').classList.add('hidden');
+    document.getElementById('name-display').innerText = '';
+    document.getElementById('role-display').innerText = '';
 }
 
