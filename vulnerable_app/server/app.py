@@ -18,16 +18,20 @@ def login():
         print(f'warning: {user_id} is not a valid user_id')
         return jsonify({'error' : f'Invalid Login'}), 400
     
-    token = usr_ctrl.create_token(user_data)
-
-    json_token = {
-        'status' : 'success',
-        'user_pref' : user_data,
-        'token' : token
-    }
-
-    return jsonify(json_token)
+    authToken = usr_ctrl.create_token(user_data)
     
+    return_data = {
+        'user_data': user_data,
+        'authToken': authToken
+    }
+    
+    return jsonify(return_data)
+
+@app.route("/access_admin", methods=['POST'])
+def access_admin():
+    data = request.get_json()
+
+
 if __name__ == "__main__":
     '''
     Bind the flask app to localhost:5000

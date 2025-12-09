@@ -20,12 +20,15 @@ def get_user_data(user):
     
 def create_token(user_data):
     '''
-    Create a token for the session
-    This uses python pickle - which is very unsecure
+    Create a token for the session.
+    The token contains user preferences and roles.
+    
+    This uses python pickle - which is very unsecure.
     '''
     try:
         pickled_data = pickle.dumps(user_data)
-        token = base64.b64encode(pickled_data).decode('utf-8')
-        return token
+        authToken = base64.b64encode(pickled_data).decode('utf-8')
+
+        return authToken
     except Exception as e:
         return None

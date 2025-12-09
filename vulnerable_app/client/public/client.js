@@ -23,7 +23,7 @@ async function userLogin() {
         }
 
         token = response.data.token;
-        let userData = response.data.user_pref;
+        let userData = response.data.user_data;
 
         displayUser(userData);
 
