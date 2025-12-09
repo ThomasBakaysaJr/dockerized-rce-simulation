@@ -9,11 +9,11 @@ axios.defaults.baseURL = 'http://localhost:5000'
 let token = ''
 
 // controller
-async function userLogin() {
+async function userLogin(loginId) {
     try {
         // get user information from backend
         sending_data = {
-            'user_id' : '1'
+            'user_id' : loginId
         }
         const response = await axios.post('login', sending_data);
         
