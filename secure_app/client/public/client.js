@@ -22,7 +22,7 @@ async function userLogin(loginId) {
             console.error(`Login failed: response is ${response}`);
         }
 
-        token = response.data.authToken;
+        token = response.data.auth_token;
         let userData = response.data.user_data;
 
         displayUser(userData);
@@ -43,6 +43,8 @@ async function accessAdmin() {
                 'Authorization' : `Bearer ${token}`
             }
         }
+
+        console.log(config)
 
         const response = await axios.get('access_admin', config);
 

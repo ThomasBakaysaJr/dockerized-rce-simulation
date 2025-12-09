@@ -23,11 +23,11 @@ def login():
         print(f'warning: {user_id} is not a valid user_id')
         return jsonify({'error' : f'Invalid Login'}), 400
     
-    authToken = usr_ctrl.create_token(user_data)
-    
+    auth_token = usr_ctrl.create_token(user_data)
+
     return_data = {
         'user_data': user_data,
-        'authToken': authToken
+        'auth_token': auth_token, # Hashed Signature / Tamper Seal
     }
 
     return jsonify(return_data)
@@ -39,10 +39,15 @@ def access_admin():
         print(f'warning: No authorization header available')
         return jsonify({'error' : f'Missing Headers'}), 400
     
-    encoded_token = auth_header.get('Authorization').split(" ")[1]
+    # strip Bearer
+    auth_token = auth_header.get('Authorization').split(" ")[1]
+    encoded_data, signature = auth_token.split('.')
+
+    # is_admin = usr_ctrl.is_admin(auth_token)
+        
 
     return_data = {
-        'is_elevated' : usr_ctrl.is_admin(encoded_token)
+        'is_elevated' : usr_ctrl.is_admin(encoded_data)
     }
 
     return return_data
