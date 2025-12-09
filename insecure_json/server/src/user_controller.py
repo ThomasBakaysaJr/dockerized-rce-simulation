@@ -1,6 +1,5 @@
 import os
 import json
-import pickle
 import base64
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,10 +37,8 @@ def create_token(user_data):
     This uses python pickle - which is very unsecure.
     '''
     try:
-        # pickle the data
-        pickled_data = pickle.dumps(user_data)
-        # convert binary pickle data into a string for transport
-        authToken = base64.b64encode(pickled_data).decode('utf-8')
+        # convert the user_data into a http friend string
+        authToken = base64.b64encode(json.dumps(user_data).encode()).decode('utf-8')
         return authToken
     except Exception as e:
         return None
@@ -52,9 +49,7 @@ def load_token(authToken):
 
     Uses python pickle - INSECURE
     '''
-    pickled_data = base64.b64decode(authToken)
-    
-    user_data = pickle.loads(pickled_data) # INSECURE - ALLOWS RCE
+    user_data = json.loads(base64.b64decode(authToken).decode())
 
     return user_data
     
