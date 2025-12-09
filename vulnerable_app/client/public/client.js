@@ -22,7 +22,7 @@ async function userLogin() {
             console.error(`Login failed: response is ${response}`);
         }
 
-        token = response.data.token;
+        token = response.data.authToken;
         let userData = response.data.user_data;
 
         displayUser(userData);
@@ -31,6 +31,30 @@ async function userLogin() {
         document.getElementById('user-pref-view').classList.remove('hidden');
     } catch (error) {
         console.error(`Login Failed: ${error.message}`)
+    }
+}
+
+async function accessAdmin() {
+    try {
+        console.log(`Token is ${token}`)
+        config = {
+            headers : {
+                // 'Content-Type' : 'application/json',
+                'Authorization' : `Bearer ${token}`
+            }
+        }
+
+        const response = await axios.get('access_admin', config);
+
+        if (!response.data)
+        {
+            console.error(`Elevate failed: response is ${response}`);
+        }
+
+        console.log(`User elevated = ${response.data.is_elevated}`)
+
+    } catch (error) {
+        console.error(`Elevate Failed: ${error.message}`)
     }
 }
 

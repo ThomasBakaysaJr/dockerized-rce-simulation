@@ -17,18 +17,44 @@ def get_user_data(user):
             return users.get(user)
     except Exception as e:
         return None
+
+def is_admin(authToken):
+    '''
+    Determine if this user is able to access the admin panel.
+    '''
+    try:
+        data = load_token(authToken)
+        role = data.get('role')
+        return role == 'admin'
+    
+    except Exception as e:
+        print(f'is_admin: Error: {e}')
     
 def create_token(user_data):
     '''
     Create a token for the session.
     The token contains user preferences and roles.
-    
+
     This uses python pickle - which is very unsecure.
     '''
     try:
+        # pickle the data
         pickled_data = pickle.dumps(user_data)
+        # convert binary pickle data into a string for transport
         authToken = base64.b64encode(pickled_data).decode('utf-8')
-
         return authToken
     except Exception as e:
         return None
+    
+def load_token(authToken): 
+    '''
+    Decode and load token
+
+    Uses python pickle - INSECURE
+    '''
+    pickled_data = base64.b64decode(authToken)
+    
+    user_data = pickle.loads(pickled_data) # INSECURE - ALLOWS RCE
+
+    return user_data
+    
