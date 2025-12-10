@@ -2,6 +2,8 @@
 
 A dockerized simulation of two critical vulnerabilities when passing authorization tokens. Using a mock web service we simulate two types of attacks on a backend server, utilizing exploits in the way the server handles untrusted inputs. Finally, we have a secure version that eliminates the vulnerabilities presented by both insecure examples. 
 
+A technical report on the vulnerabilites and remediation stategies can be found in the [Security Report](Security_Report.pdf). 
+
 # Table of Contents
 - [Docker Deserialization Attack Lab](#docker-deserialization-attack-lab)
 - [Table of Contents](#table-of-contents)
@@ -9,7 +11,6 @@ A dockerized simulation of two critical vulnerabilities when passing authorizati
   - [Ubuntu](#ubuntu)
   - [Firefox](#firefox)
   - [Docker](#docker)
-    - [Offical Guide](#offical-guide)
   - [Python Virtual Environment (venv)](#python-virtual-environment-venv)
 - [Webservice](#webservice)
 - [Example 1: Remote Code Execution](#example-1-remote-code-execution)
@@ -26,6 +27,7 @@ A dockerized simulation of two critical vulnerabilities when passing authorizati
   - [Running the Lab](#running-the-lab-2)
   - [Impact](#impact-2)
 - [Technology Stack](#technology-stack)
+
 
 
 # Pre-Requisites
