@@ -21,7 +21,7 @@ async function userLogin(loginId) {
         {
             console.error(`Login failed: response is ${response}`);
         }
-
+        // store token
         token = response.data.authToken;
         let userData = response.data.user_data;
 
@@ -36,14 +36,13 @@ async function userLogin(loginId) {
 
 async function accessAdmin() {
     try {
-        console.log(`Token is ${token}`)
         config = {
             headers : {
                 // 'Content-Type' : 'application/json',
                 'Authorization' : `Bearer ${token}`
             }
         }
-
+        // send GET request for admin rights
         const response = await axios.get('access_admin', config);
 
         if (!response.data)

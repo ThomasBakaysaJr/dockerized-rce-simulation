@@ -15,14 +15,15 @@ def login():
     if data is None:
         print(f'warning: {data}.get_json() is returning None')
         return jsonify({'error' : f'Invalid Request'}), 400
-    
+    # what user are we logging in
     user_id = data.get('user_id')
-
+    # get user data
     user_data = usr_ctrl.get_user_data(user_id)
     if user_data is None:
         print(f'warning: {user_id} is not a valid user_id')
         return jsonify({'error' : f'Invalid Login'}), 400
     
+    # create an authorization token. This time is JSON_encoded.signature
     auth_token = usr_ctrl.create_token(user_data)
 
     return_data = {
@@ -40,7 +41,6 @@ def access_admin():
         return jsonify({'error' : f'Missing Headers'}), 400
     
     # strip Bearer
-    
     try:
         auth_token = auth_header.get('Authorization').split(" ")[1]
         encoded_data, signature = auth_token.split('.')

@@ -43,8 +43,6 @@ def is_admin(auth_token):
 def encode_json(user_data):
     '''
     Encode user_data into a http friendly string
-
-    This uses python pickle - which is very unsecure.
     '''
     try:
         # convert the user_data into a http friend string
@@ -63,13 +61,12 @@ def decode_json(user_data):
 
     return user_data
 
-# def encode_digest(digest):
-#     return digest.decode('utf-8')
-
-# def decode_digest(digest):
-#     return base64.b64encode(digest)
-
 def check_signature(auth_token):
+    '''
+    This is where we validate the integrity of the incoming data.
+    Due to HMACs requiring a secret key, it is infeasible for an attacker to create
+    a signature that we would accept.
+    '''
     # seperated the encoded json and the signature
     in_encoded_json, signature = auth_token.split('.')
 
@@ -96,7 +93,7 @@ def compare_hmac(in_encoded_data, in_signature):
     :param auth_token: JSON Object - untrusted auth token
     :param incoming_hmac: Received HMAC hex signature - trusted
 
-    :return If the two signatures match
+    :return True the two signatures match
     '''
     user_data = decode_json(in_encoded_data)
     new_signature = create_hmac(user_data).hexdigest()

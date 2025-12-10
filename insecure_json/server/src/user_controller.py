@@ -34,7 +34,7 @@ def create_token(user_data):
     Create a token for the session.
     The token contains user preferences and roles.
 
-    This uses python pickle - which is very unsecure.
+    We are now encoding just a JSON object.
     '''
     try:
         # convert the user_data into a http friend string
@@ -47,7 +47,7 @@ def load_token(authToken):
     '''
     Decode and load token
 
-    Uses python pickle - INSECURE
+    No pickles to be found. Just JSON
     '''
     user_data = json.loads(base64.b64decode(authToken).decode())
 
