@@ -121,7 +121,7 @@ pip install -r requirements.txt
 
 While not required for the lab, once the containers are up and running you can access the website by going to [localhost:3000](http://localhost:3000).
 
-Here you can confirm that only those with admin access will triggger the admin panel. It is specifically looking for a response from the webserver confirm (Authorizing) the user to have admin privileges.
+Here you can confirm that only those with admin access will triggger the admin panel. It is specifically looking for a response from the webserver authorizing the user to have admin privileges.
 
 This minimal setup showcases a simple stateless implementation of authentication and authorization. This is common for web services as it allows for the reduction in user lookup and authorization for every action. 
 
@@ -139,13 +139,31 @@ Taking advantage of this vulnerability often requires knowledge of the process o
 
 ## Running the Lab
 
-### 1. Move into insecure_serialization
+A few important things before running the lab.
+
+The python exploit scripts must be run from a terminal that has the python virtual environment activated. 
+
+![the word venv is behind the username in a terminal](images/venv_proof.png)
+
+This can only be done from the root folder of the project, so I would recommend you keep a terminal open for the exploit scripts since you'll have to activate the venv for any new terminal.
+
+Docker doesn't require it, so the terminal that you currently have open should have the venv already active, click on the plus icon on the top left to open a new terminal session in the same directory. This will be the terminal you use for the docker container.
+
+![a plus at the top left of a terminal](images/terminal_plus.png)
+
+I will refer to them as the venv terminal and the docker terminal.
+
+### 1. Move into insecure_deserialization
+
+Using the docker terminal. 
 
 ```bash
-cd insecure_serialization
+cd insecure_deserialization
 ```
 
 ### 2. Build the Docker Containers
+
+Using the docker terminal.
 
 ```bash
 docker compose up --build
@@ -157,28 +175,20 @@ This will start the frontend and backend server. This simulates a skeleton websi
 
 While not required for the lab, you can access the website by going to [localhost:3000](http://localhost:3000).
 
-### 3.1 Open a New Terminal
+### 3.1 Confirm Absence of Attacker Artifact
 
-Leave the Docker Compose terminal running, but don't forget about it.
-
-Open a new terminal to the same directory. You should be able to open a terminal in the same directory by clickling on the plus mark on the top left.
-
-[put image here]
-
-From this point forward, use this new terminal. 
-
-### 3.2 Confirm Absence of Attacker Artifact
-
-Move into the server directory and confirm that the files and dir contained within.
+Using the venv terminal, move into the server directory and confirm that the files and dir contained within.
 
 ```bash
-cd insecure_serialization
+cd insecure_deserialization
 ls -l
 ```
 
+![a directory with directories data, src and files app.py, Dockerfile and requirements.txt](images/pickle_bomb_before.png)
+
 ### 3.2 Run Attack Script
 
-Move back into the root of the insecure_serialization lab folder.
+Using the venv terminal, move back into the root of the insecure_deserialization lab folder.
 
 ```bash
 cd ..
@@ -196,19 +206,22 @@ The script then sends this malicious package to the backend webserver through th
 
 ### 4. Confirm Remote Code Execution
 
-After execution, move into the server directory. This is the backend logic of the micro-service, analogous to the backend service in a real life web service.
+Still in the venv terminal, after execution, move into the server directory. This is the backend logic of the micro-service, analogous to the backend service in a real life web service.
 
 ```bash
-cd insecure_serialization
+cd insecure_deserialization
 ls -l 
 ```
 
-This should show a file called "unwelcome_guest.txt" that should not be in this directory.
+This should show a file called "unwelcome_guest.txt" that should not be in this directory. The pickle bomb successfully created a file on the server.
+
+![a directory with directories data, src and files app.py, Dockerfile and requirements.txt and unwelcome_guest.txt](images/pickle_bomb_after.png)
+
 You can now close this terminal window and return to the terminal running the **docker compose**.
 
 ### 5. Stop the Containers
 
-In the terminal running the docker compose, press ```ctrl + c``` to stop the micro-services. 
+In the docker terminal, press ```ctrl + c``` to stop the micro-services. 
 
 That is the end of this portion of the lab.
 
@@ -234,21 +247,23 @@ This is a security vulnerability in of itself, as we are relying on the Authoriz
 
 ## Running the Lab
 
-### 1. Move into the insecure_json directory
+### 1. Move into the broken_access_control directory
 
-Assuming you still have a terminal open in the ```insecure_serialization``` directory, move into the ```insecure_json``` directory.
+Using the docker terminal, which should still be in the ```insecure_deserialization``` directory, move into the ```broken_access_control``` directory.
 
 ```bash
-cd ../insecure_json
+cd ../broken_access_control
 ```
 
 ### 2. Build the Docker Containers
+
+Using the docker terminal.
 
 ```bash
 docker compose up --build
 ```
 
-This will start the frontend and backend server. This simulates a skeleton website with a login and an option to access an "admin panel".
+The setup is the same except for the Flask App (the server) having been updated to not use the pickle library anymore.
 
 ### 3.1 Open the website
 
@@ -266,7 +281,7 @@ Press ```F12``` to open the developer tools on the mock website.
 
 Open the network tab on the developer toolbar and click on ```reload``.
 
-[image here]
+![dev tools tab with the mouse over the reload button on inside the network tab](images/dev_network_reload.png)
 
 This allows us to view the requests being sent back and forth between the client and the server. This is all easily accessible information and it is important to keep in mind when creating solutions, that nothing can be truly hidden from the client.
 
@@ -278,19 +293,19 @@ Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Authoriza
 
 In the Network tab you should see the ```POST``` request for the login. Clicking on it will allow you to view the response to the request. This response will contain the Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
 
+![dev tools tab with data containing an autherization token and user data](images/dev_login_evelyn.png)
+
 ### 3.5 Copy the Authorization Token (optional)
 
 While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
 
-### 4.1 Open a New Terminal
+### 4.1 Move venv Terminal 
 
-Leave the Docker Compose terminal running, but don't forget about it.
+Using the venv terminal, we're going to move to the same directory.
 
-Open a new terminal to the same directory. You should be able to open a terminal in the same directory by clickling on the plus mark on the top left.
-
-[put image here]
-
-From this point forward, use this new terminal. 
+```bash
+cd ../broken_access_control
+```
 
 ### 4.2 Run privilege_escalation.py
 
@@ -307,8 +322,6 @@ python privilege_escalation.py <token>
 ```
 
 This will showcase how, since the server blindly trusts all incoming data, we can easily modify the Authorization Token to escalate a non-admin user to admin.
-
-You can now close this terminal.
 
 ### 5. Stop the Containers
 
@@ -332,19 +345,21 @@ The easiest way to secure an Authorization Token, which also extends to any info
 
 The simplest solution, and one we use here, is to attach an Hash-Based Message Authentication Code (HMAC) to the Authorization Token.
 
+![a diagram showing that a signature is made up offd data and a secrete key. The data attached to the signature becomes a new autherization token](images/hmac_diagram.png)
+
 # Example 3. Secure Tokens
 
 In this set-up, we've realized that blindly trusting a source from beyond our trust boundary is inherently risky. We now create a signature of our original Authorization Token using a secret key only we know, we then send these together as the new Signed Authorization Token.
 
 Server side we now only accept Authorization Tokens that contain a signature. We then compute a new signature using the INCOMING encoded data part of this Authorization Token, we then compare that to signature attached to the AuthorizationToken. This is to verify that the information contained within the encoded data section of the Authorization Token has not been modified, since an attacker would not be able to create the same signature without our secret key.
 
-[image of hmac]
+![dev tools tab showing that an autherization token with an attached signature using the dot method](images/dev_auth_hmac.png)
 
 ## Running the Lab
 
-### 1. Move into the insecure_json directory
+### 1. Move into the broken_access_control directory
 
-Assuming you still have a terminal open in the ```insecure_json``` directory, move into the ```secure_app``` directory.
+Using the docker terminal in the ```broken_access_control``` directory, move into the ```secure_app``` directory.
 
 ```bash
 cd ../secure_app
@@ -352,11 +367,13 @@ cd ../secure_app
 
 ### 2. Build the Docker Containers
 
+Using the docker terminal.
+
 ```bash
 docker compose up --build
 ```
 
-This will start the frontend and backend server. This simulates a skeleton website with a login and an option to access an "admin panel".
+In this setup, the backend server has been upgraded to now create hmac signatures and attachign them to the authorization tokens. The server will reject any request for admin permissions if the authorization token is missing a signature or the signature doesn't match the messsage.
 
 ### 3.1 Open the website
 
@@ -372,7 +389,7 @@ Press ```F12``` to open the developer tools on the mock website.
 
 Open the network tab on the developer toolbar and click on ```reload``.
 
-[image here]
+![dev tools tab with the mouse over the reload button on inside the network tab](images/dev_network_reload.png)
 
 This allows us to view the requests being sent back and forth between the client and the server. This is all easily accessible information and it is important to keep in mind when creating solutions, that nothing can be truly hidden from the client.
 
@@ -384,23 +401,23 @@ Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Signed Au
 
 In the Network tab you should see the ```POST``` request for the login. Clicking on it will allow you to view the response to the request. This response will contain the Signed Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
 
+![dev tools tab showing that an autherization token with an attached signature using the dot method](images/dev_auth_hmac.png)
+
 ### 3.5 Copy the Authorization Token (optional)
 
 While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
 
-### 4.1 Open a New Terminal
+### 4.1 Move venv Terminal
 
-Leave the Docker Compose terminal running, but don't forget about it.
+Move the venv terminal to the same directory.
 
-Open a new terminal to the same directory. You should be able to open a terminal in the same directory by clickling on the plus mark on the top left.
-
-[put image here]
-
-From this point forward, use this new terminal. 
+```bash
+cd ../secure_app
+```
 
 ### 4.2 Run privilege_escalation.py
 
-Run ```privilege_escalation.py`` with or without the token from step 3.5.
+Using the venv terminal, run ```privilege_escalation.py`` with or without the token from step 3.5.
 
 ```bash
 python privilege_escalation.py
@@ -412,13 +429,13 @@ or with token
 python privilege_escalation.py <token>
 ```
 
-This will show that with the newly signed token, we are unable to get the server to escalate our role. In fact, we get an Error 403 Forbidden since the server itself realizes that the data has been tampered with and will refuse to interact with any data that is attached with this token.
+This will show that with the newly signed token, we are unable to get the server to escalate our role. In fact, we get an Error 403 Forbidden since the server itself realizes that the data has been tampered with and will refuse to interact with any data that is attached to this token.
 
 You can now close this terminal.
 
 ### 5. Stop the Containers
 
-In the terminal running the docker compose, press ```ctrl + c``` to stop the micro-services. 
+In the docker terminal, press ```ctrl + c``` to stop the micro-services. 
 
 That is the end of this portion of the lab.
 
