@@ -2,7 +2,7 @@
 
 A dockerized simulation of two critical vulnerabilities when passing authorization tokens. Using a mock web service we simulate two types of attacks on a backend server, utilizing exploits in the way the server handles untrusted inputs. Finally, we have a secure version that eliminates the vulnerabilities presented by both insecure examples. 
 
-A technical report on the vulnerabilites and remediation stategies can be found in the [Security Report](Security_Report.pdf). 
+A technical report on the vulnerabilities and remediation strategies can be found in the [Security Report](Security_Report.pdf). 
 
 # Table of Contents
 - [Docker Deserialization Attack Lab](#docker-deserialization-attack-lab)
@@ -19,7 +19,7 @@ A technical report on the vulnerabilites and remediation stategies can be found 
   - [Running the Lab](#running-the-lab)
   - [Impact](#impact)
   - [Mitigation](#mitigation)
-- [Example 2: Privelege Escalation](#example-2-privelege-escalation)
+- [Example 2: Privilege Escalation](#example-2-privilege-escalation)
   - [Running the Lab](#running-the-lab-1)
   - [Impact](#impact-1)
   - [Mitigation](#mitigation-1)
@@ -46,10 +46,10 @@ While this simulation should work on any web browser, this was only tested on Fi
 
 This uses dockerized containers to simulate a webserver's frontend and backend.
 
-### Offical Guide
+### Official Guide
 
 The official guide to installing docker can be found here: [Install Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).  
-A quick install guide is shown below.
+A quick install guide is below.
 
 ### 1. Setup Apt Repository
 
@@ -93,7 +93,7 @@ sudo systemctl start docker
 
 ## Python Virtual Environment (venv)
 
-The scripts that showcase the vulnerabilites in secure serilziation are best used with a virtual environment.
+The scripts that showcase the vulnerabilities in secure serialization are best used with a virtual environment.
 
 ### 1. Create Python Venv
 
@@ -113,7 +113,7 @@ source venv/bin/activate
 
 ### 3. Install requirements.txt
 
-Install the packages and libraries required for the the project to run.
+Install the packages and libraries required for the project to run.
 
 ```bash
 pip install -r requirements.txt
@@ -123,7 +123,7 @@ pip install -r requirements.txt
 
 While not required for the lab, once the containers are up and running you can access the website by going to [localhost:3000](http://localhost:3000).
 
-Here you can confirm that only those with admin access will triggger the admin panel. It is specifically looking for a response from the webserver authorizing the user to have admin privileges.
+Here you can confirm that only those with admin access will trigger the admin panel. It is specifically looking for a response from the webserver authorizing the user to have admin privileges.
 
 This minimal setup showcases a simple stateless implementation of authentication and authorization. This is common for web services as it allows for the reduction in user lookup and authorization for every action. 
 
@@ -131,13 +131,13 @@ This minimal setup showcases a simple stateless implementation of authentication
 
 ## The Python Pickle
 
-The python pickle library is a notriously insecure method of serializing objects. Its own documentation page warns users of the dangers when unpickling data.
+The python pickle library is a notoriously insecure method of serializing objects. Its own documentation page warns users of the dangers when unpickling data.
 
 ## Insecure Serialization
 
-This lab simualates an attacker utilizing the vulnerability of the python pickle package to serialize a class that automatically runs itself when unserialized. [OWASP A08:2017](https://owasp.org/www-project-top-ten/2017/A8_2017-Insecure_Deserialization) shows that this is a often hard to identify this is as a security flaw as it is not as obvious as other flaws.
+This lab simulates an attacker utilizing the vulnerability of the python pickle package to serialize a class that automatically runs itself when unserialized. [OWASP A08:2017](https://owasp.org/www-project-top-ten/2017/A8_2017-Insecure_Deserialization) shows that this is a often hard to identify this is as a security flaw as it is not as obvious as other flaws.
 
-Taking advantage of this vulnerability often requires knowledge of the process of the backend server in utilizing the serialized data. This exploit however is a critical weakness, as the potential of Remote Code Execution allows for an attacker to gain complete access to a resource.
+Exploiting this vulnerability often requires knowledge of the process of the backend server in utilizing the serialized data. This exploit however is a critical weakness, as the potential of Remote Code Execution allows for an attacker to gain complete access to a resource.
 
 ## Running the Lab
 
@@ -179,7 +179,7 @@ While not required for the lab, you can access the website by going to [localhos
 
 ### 3.1 Confirm Absence of Attacker Artifact
 
-Using the venv terminal, move into the server directory and confirm that the files and dir contained within.
+Using the venv terminal, move into the server directory and confirm that the files and dir are contained within.
 
 ```bash
 cd insecure_deserialization
@@ -231,17 +231,17 @@ That is the end of this portion of the lab.
 
 This attack lab showcases the danger of using insecure libraries for deserializing data from an inherently untrusted source. A library such as the python pickle should never be used to transport data from outside the trust boundary.  
 
-Doing so opens critical components to malicous actors, this example shows the danger of **Remote Code Execution**, allowing an attacker to run abitrary code on the box. 
+Doing so opens critical components to malicious actors, this example shows the danger of **Remote Code Execution**, allowing an attacker to run arbitrary code on the box. 
 
-In the example we created a file, in a real world scenario (and depending on the permissions granted to the server), an attacker could wipe out the entire machine.
+In the example we created a file. In a real world scenario (and depending on the permissions granted to the server), an attacker could wipe out the entire machine.
 
 ## Mitigation
 
-The solution is to not use serialize data using inherently insecure protocols. Moving away from the python pickle library to JSON is a solid first step.
+The solution is to not use serialized data using inherently insecure protocols. Moving from the python pickle library to JSON is a solid first step.
 
-The inherent vulnerability in this set-up however, blindly trusting sources outside of the trust boundary, is a security flaw that is not solved by switching from an insecure serialziation method to a secure one. It exchanges one vulnerability for another.
+The inherent vulnerability in this set-up however, blindly trusting sources outside of the trust boundary, is a security flaw that is not solved by switching from an insecure serialization method to a secure one. It exchanges one vulnerability for another.
 
-# Example 2: Privelege Escalation
+# Example 2: Privilege Escalation
 
 In this set-up, we have moved away from using the python pickle to completely using json for the Authorization Token. However, we are still blindly trusting the client without verifying any of the information they are sending us. 
 
@@ -293,13 +293,13 @@ For this part of the simulation, we will be using the user ```Evelyn``` as they 
 
 Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Authorization Token.
 
-In the Network tab you should see the ```POST``` request for the login. Clicking on it will allow you to view the response to the request. This response will contain the Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
+In the Network tab you should see the ```POST``` request for the login. Clicking it will show you the request response. This response will contain the Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
 
-![dev tools tab with data containing an autherization token and user data](images/dev_login_evelyn.png)
+![dev tools tab with data containing an authorization token and user data](images/dev_login_evelyn.png)
 
 ### 3.5 Copy the Authorization Token (optional)
 
-While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
+While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token, will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
 
 ### 4.1 Move venv Terminal 
 
@@ -337,9 +337,9 @@ Assuming you ran this either without a token or with Evelyn's token (there would
 
 The script will then decode the JSON, since it is not encrypted, and then modifies the role from ```member``` to ```admin```. It then encodes the JSON, attaches it to the headers for a request and then retry the same route. 
 
-The server now returns ```is_elevated : True```. An attacker has now successfully elevated a non-admin user to admin. In a stateless design, this is especially dangerous as this Authorization token with adminstrative priveleges completely bypasses any authentication and verification that may have occured when the user logs in.
+The server now returns ```is_elevated : True```. An attacker has now successfully elevated a non-admin user to admin. In a stateless design, this is especially dangerous as this Authorization token with administrative privileges completely bypasses any authentication and verification that may have occurred when the user logs in.
 
-Broken Access Controls is the number 1 on the most recent [OWASP Top 10 (2021)](https://owasp.org/Top10/2021/A01_2021-Broken_Access_Control/) list, its is a serious security flaw that as demonstrated, can lead to unauthrozied users gaining access to potentially sensitive or critical systems.
+Broken Access Controls is the number 1 on the most recent [OWASP Top 10 (2021)](https://owasp.org/Top10/2021/A01_2021-Broken_Access_Control/) list, its is a serious security flaw that as demonstrated, can lead to unauthorized users gaining access to potentially sensitive or critical systems.
 
 ## Mitigation
 
@@ -347,15 +347,15 @@ The easiest way to secure an Authorization Token, which also extends to any info
 
 The simplest solution, and one we use here, is to attach an Hash-Based Message Authentication Code (HMAC) to the Authorization Token.
 
-![a diagram showing that a signature is made up offd data and a secrete key. The data attached to the signature becomes a new autherization token](images/hmac_diagram.png)
+![a diagram showing that a signature is made up of data and a secret key. The data attached to the signature becomes a new authorization token](images/hmac_diagram.png)
 
 # Example 3. Secure Tokens
 
 In this set-up, we've realized that blindly trusting a source from beyond our trust boundary is inherently risky. We now create a signature of our original Authorization Token using a secret key only we know, we then send these together as the new Signed Authorization Token.
 
-Server side we now only accept Authorization Tokens that contain a signature. We then compute a new signature using the INCOMING encoded data part of this Authorization Token, we then compare that to signature attached to the AuthorizationToken. This is to verify that the information contained within the encoded data section of the Authorization Token has not been modified, since an attacker would not be able to create the same signature without our secret key.
+Server side we now only accept Authorization Tokens that contain a signature. We then compute a new signature using the INCOMING encoded data part of this Authorization Token, we then compare that to the signature attached to the AuthorizationToken. This is to verify that the information contained within the encoded data section of the Authorization Token has not been modified, since an attacker would not be able to create the same signature without our secret key.
 
-![dev tools tab showing that an autherization token with an attached signature using the dot method](images/dev_auth_hmac.png)
+![dev tools tab showing that an authorization token with an attached signature using the dot method](images/dev_auth_hmac.png)
 
 ## Running the Lab
 
@@ -375,7 +375,7 @@ Using the docker terminal.
 docker compose up --build
 ```
 
-In this setup, the backend server has been upgraded to now create hmac signatures and attachign them to the authorization tokens. The server will reject any request for admin permissions if the authorization token is missing a signature or the signature doesn't match the messsage.
+In this setup, the backend server has been upgraded to now create hmac signatures and attach them to the authorization tokens. The server will reject any request for admin permissions if the authorization token is missing a signature or the signature doesn't match the message.
 
 ### 3.1 Open the website
 
@@ -401,13 +401,13 @@ For this part of the simulation, we will continue to use the user ```Evelyn``` a
 
 Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Signed Authorization Token.
 
-In the Network tab you should see the ```POST``` request for the login. Clicking on it will allow you to view the response to the request. This response will contain the Signed Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
+In the Network tab you should see the ```POST``` request for the login. Clicking it will show you the request response. This response will contain the Signed Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
 
-![dev tools tab showing that an autherization token with an attached signature using the dot method](images/dev_auth_hmac.png)
+![dev tools tab showing that an authorization token with an attached signature using the dot method](images/dev_auth_hmac.png)
 
 ### 3.5 Copy the Authorization Token (optional)
 
-While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
+While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token, will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
 
 ### 4.1 Move venv Terminal
 
@@ -450,3 +450,4 @@ For the user, nothing has changed. In fact, clien.js required no modification of
 # Technology Stack
 
 Python (Flask), Node.js (Express), Docker, Axios
+
