@@ -4,18 +4,59 @@ A dockerized simulation of two critical vulnerabilities when passing authorizati
 
 A technical report on the vulnerabilities and remediation strategies can be found in the [Security Report](Security_Report.pdf). 
 
+# Technology Stack
+
+Python (Flask), Node.js (Express), Docker, Axios
+
+
+```mermaid
+flowchart TD
+    subgraph TrustBoundary[Trust Boundary]
+        subgraph Network[Docker Network]
+            Frontend[Frontend Server
+                    Node.js / Express]
+            Backend[Backend API
+                    Python / Flask]
+            Frontend ~~~ Backend
+        end
+    end
+
+    subgraph clientside [Client / Browser]
+        ClientJS
+        User((Attacker))
+        User userEdge@<--> ClientJS
+    end
+
+
+
+    Frontend frontEdge@-- Serves client.js --> ClientJS
+    ClientJS toServerEdge@-- 1. Authenticates <br>2. Issues Auth Token <br> 3. Request + Auth Token  <---> Backend
+    
+    ClientJS ~~~ Backend
+    User ~~~ Backend
+
+    User payloadEdge@== Malicious Payload ===> Backend
+
+    userEdge@{curve: linear}
+    frontEdge@{curve: step}
+    toServerEdge@{curve: linear,    animate: true}
+    payloadEdge@{curve: stepBefore, animate: true}
+
+    classDef attacker fill:#f9d0c4,stroke:#333,stroke-width:2px;
+    classDef secure fill:#fa8072,stroke:#333,stroke-width:4px;
+    class User attacker;
+    class TrustBoundary secure;
+```
+
 # Table of Contents
 - [Docker Deserialization Attack Lab](#docker-deserialization-attack-lab)
+- [Technology Stack](#technology-stack)
 - [Table of Contents](#table-of-contents)
 - [Pre-Requisites](#pre-requisites)
-  - [Ubuntu](#ubuntu)
-  - [Firefox](#firefox)
-  - [Docker](#docker)
-  - [Python Virtual Environment (venv)](#python-virtual-environment-venv)
+- [Quick Set-up](#quick-set-up)
 - [Webservice](#webservice)
+- [Attack Vector](#attack-vector)
 - [Example 1: Remote Code Execution](#example-1-remote-code-execution)
-  - [The Python Pickle](#the-python-pickle)
-  - [Insecure Serialization](#insecure-serialization)
   - [Running the Lab](#running-the-lab)
   - [Impact](#impact)
   - [Mitigation](#mitigation)
@@ -23,109 +64,45 @@ A technical report on the vulnerabilities and remediation strategies can be foun
   - [Running the Lab](#running-the-lab-1)
   - [Impact](#impact-1)
   - [Mitigation](#mitigation-1)
-- [Example 3. Secure Tokens](#example-3-secure-tokens)
+- [Example 3 Secure Tokens](#example-3-secure-tokens)
   - [Running the Lab](#running-the-lab-2)
   - [Impact](#impact-2)
-- [Technology Stack](#technology-stack)
 
 
 
 # Pre-Requisites
 
-## Ubuntu
-
-This simulation is verified to work on:
-
-Ubuntu 24.04 LTS
-
-## Firefox
-
-While this simulation should work on any web browser, this was only tested on Firefox.
-
-## Docker
-
-This uses dockerized containers to simulate a webserver's frontend and backend.
-
-### Official Guide
+Tested to work on: 
+- Ubuntu 24.04.4 LTS
+- Docker version 29.2.1
 
 The official guide to installing docker can be found here: [Install Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).  
-A quick install guide is below.
-
-### 1. Setup Apt Repository
-
-```bash
-# Add Docker's official GPG key:
-sudo apt update
-sudo apt install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-sudo apt update
-```
-
-### 2. Install Docker Packages
-
-```bash
-sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-### 3. Check Status
-
-```bash
-sudo systemctl status docker
-```
-
-### 3.1 Start if Disabled
-
-```bash
-sudo systemctl start docker
-```
-
 ## Python Virtual Environment (venv)
 
-The scripts that showcase the vulnerabilities in secure serialization are best used with a virtual environment.
+# Quick Set-up
 
-### 1. Create Python Venv
-
-Make sure you're in the base dir of the project.
+This will clone the repo and set up the required venv for the project.
 
 ```bash
+git clone https://github.com/ThomasBakaysaJr/dockerized-rce-simulation.git insecure-lab
+cd insecure-lab
 python3 -m venv venv
-```
-
-### 2. Activate Virtual Environment
-
-Activate the virtual environment.
-
-```bash
 source venv/bin/activate
-```
-
-### 3. Install requirements.txt
-
-Install the packages and libraries required for the project to run.
-
-```bash
 pip install -r requirements.txt
 ```
 
 # Webservice
 
-While not required for the lab, once the containers are up and running you can access the website by going to [localhost:3000](http://localhost:3000).
+While not required for the lab, once the containers are up and running you can access the website by going to [localhost:3000](http://localhost:3000). You can change this by modifying the .env file.
+
 
 Here you can confirm that only those with admin access will trigger the admin panel. It is specifically looking for a response from the webserver authorizing the user to have admin privileges.
 
 This minimal setup showcases a simple stateless implementation of authentication and authorization. This is common for web services as it allows for the reduction in user lookup and authorization for every action. 
+
+# Attack Vector
+
+Since the intensive process of authentication is done once in a stateless system, with subsequent authorization handled by the auth token, this very token becomes an high-value target for malicious actors. A server must never trust incoming data. The risk from data outside the trust boundary ranges from minimal to catastrophic.
 
 # Example 1: Remote Code Execution
 
@@ -141,62 +118,26 @@ Exploiting this vulnerability often requires knowledge of the process of the bac
 
 ## Running the Lab
 
-A few important things before running the lab.
-
-The python exploit scripts must be run from a terminal that has the python virtual environment activated. 
-
-![the word venv is behind the username in a terminal](images/venv_proof.png)
-
-This can only be done from the root folder of the project, so I would recommend you keep a terminal open for the exploit scripts since you'll have to activate the venv for any new terminal.
-
-Docker doesn't require it, so the terminal that you currently have open should have the venv already active, click on the plus icon on the top left to open a new terminal session in the same directory. This will be the terminal you use for the docker container.
-
-![a plus at the top left of a terminal](images/terminal_plus.png)
-
-I will refer to them as the venv terminal and the docker terminal.
-
-### 1. Move into insecure_deserialization
-
-Using the docker terminal. 
+### 1 Build Insecure Serialization Docker Containers
 
 ```bash
 cd insecure_deserialization
+docker compose up --build -d
 ```
 
-### 2. Build the Docker Containers
-
-Using the docker terminal.
-
-```bash
-docker compose up --build
-```
-
-This will start the frontend and backend server. This simulates a skeleton website with a login and an option to access an "admin panel".
-
-### 2.1 Open the website (optional)
+### 2 Open the website (optional)
 
 While not required for the lab, you can access the website by going to [localhost:3000](http://localhost:3000).
 
-### 3.1 Confirm Absence of Attacker Artifact
+### 3 Confirm Absence of Attacker Artifact
 
-Using the venv terminal, move into the server directory and confirm that the files and dir are contained within.
-
-```bash
-cd insecure_deserialization
-ls -l
-```
+The server directory is clean and contains only the files required for the server to run.
 
 ![a directory with directories data, src and files app.py, Dockerfile and requirements.txt](images/pickle_bomb_before.png)
 
-### 3.2 Run Attack Script
+### 4 Run Attack Script
 
-Using the venv terminal, move back into the root of the insecure_deserialization lab folder.
-
-```bash
-cd ..
-```
-
-Run the attack script.
+Run the python pickle_bomb script to attack the backend server.
 
 ```bash
 python pickle_bomb.py
@@ -206,26 +147,11 @@ This will serialize a python class that has the __reduce__ property. Upon deseri
 
 The script then sends this malicious package to the backend webserver through the publicly visible web address contained in client.js.
 
-### 4. Confirm Remote Code Execution
+### 5 Confirm Remote Code Execution
 
-Still in the venv terminal, after execution, move into the server directory. This is the backend logic of the micro-service, analogous to the backend service in a real life web service.
-
-```bash
-cd insecure_deserialization
-ls -l 
-```
-
-This should show a file called "unwelcome_guest.txt" that should not be in this directory. The pickle bomb successfully created a file on the server.
+Inside the server directory, a new file called "unwelcome_guest.txt" now exists. The pickle bomb successfully created a file on the server.
 
 ![a directory with directories data, src and files app.py, Dockerfile and requirements.txt and unwelcome_guest.txt](images/pickle_bomb_after.png)
-
-You can now close this terminal window and return to the terminal running the **docker compose**.
-
-### 5. Stop the Containers
-
-In the docker terminal, press ```ctrl + c``` to stop the micro-services. 
-
-That is the end of this portion of the lab.
 
 ## Impact
 
@@ -249,69 +175,25 @@ This is a security vulnerability in of itself, as we are relying on the Authoriz
 
 ## Running the Lab
 
-### 1. Move into the broken_access_control directory
-
-Using the docker terminal, which should still be in the ```insecure_deserialization``` directory, move into the ```broken_access_control``` directory.
+### 1 Tear down and build the next experiment
 
 ```bash
+docker compose down
 cd ../broken_access_control
+docker compose up --build -d
 ```
 
-### 2. Build the Docker Containers
+### 2 Verify Auth Token (optional)
 
-Using the docker terminal.
-
-```bash
-docker compose up --build
-```
-
-The setup is the same except for the Flask App (the server) having been updated to not use the pickle library anymore.
-
-### 3.1 Open the website
+The setup is the same except for the Flask App (the server) having been updated to move away from using python pickling for the Authorization Token. Instead, we are encoding and sending JSON structures.
 
 For this lab we are intentionally modifying the Authentication Token that we receive from the webserver. While you are not required to copy the Authorization Token, it is important to see that this is an artifact that the client receives from the web server.
 
 This token is what identifies and authorizes the user's actions in the eyes of the server.
 
-Open [localhost:3000](http://localhost:3000).
+### 3 Run privilege_escalation.py
 
-### 3.2 Open the Browser's Developer Tools
-
-Press ```F12``` to open the developer tools on the mock website.
-
-### 3.3 View Network Activity
-
-Open the network tab on the developer toolbar and click on ```reload``.
-
-![dev tools tab with the mouse over the reload button on inside the network tab](images/dev_network_reload.png)
-
-This allows us to view the requests being sent back and forth between the client and the server. This is all easily accessible information and it is important to keep in mind when creating solutions, that nothing can be truly hidden from the client.
-
-### 3.4 View Authorization Token
-
-For this part of the simulation, we will be using the user ```Evelyn``` as they are just a member. 
-
-Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Authorization Token.
-
-In the Network tab you should see the ```POST``` request for the login. Clicking it will show you the request response. This response will contain the Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
-
-![dev tools tab with data containing an authorization token and user data](images/dev_login_evelyn.png)
-
-### 3.5 Copy the Authorization Token (optional)
-
-While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token, will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
-
-### 4.1 Move venv Terminal 
-
-Using the venv terminal, we're going to move to the same directory.
-
-```bash
-cd ../broken_access_control
-```
-
-### 4.2 Run privilege_escalation.py
-
-Run ```privilege_escalation.py`` with or without the token from step 3.5.
+Run ```privilege_escalation.py`` with or without the auth token.
 
 ```bash
 python privilege_escalation.py
@@ -324,12 +206,6 @@ python privilege_escalation.py <token>
 ```
 
 This will showcase how, since the server blindly trusts all incoming data, we can easily modify the Authorization Token to escalate a non-admin user to admin.
-
-### 5. Stop the Containers
-
-In the terminal running the docker compose, press ```ctrl + c``` to stop the micro-services. 
-
-That is the end of this portion of the lab.
 
 ## Impact
 
@@ -345,81 +221,42 @@ Broken Access Controls is the number 1 on the most recent [OWASP Top 10 (2021)](
 
 The easiest way to secure an Authorization Token, which also extends to any information originating from the server and must remain unmodified, is to utilize some form of cryptography.
 
-The simplest solution, and one we use here, is to attach an Hash-Based Message Authentication Code (HMAC) to the Authorization Token.
+The simplest solution, and one we use here, is to attach an Hash-Based Message Authentication Code (HMAC) to the Authorization Token. 
+
+
+>**Warning:**  
+>Never rely on your own cryptographic implementations. This was done specifically to showcase how a JWT nominally functions. Always use well maintained crypto libraries, such as [JWT TOKENS](https://www.jwt.io/introduction#when-to-use-json-web-tokens)
+
 
 ![a diagram showing that a signature is made up of data and a secret key. The data attached to the signature becomes a new authorization token](images/hmac_diagram.png)
 
-# Example 3. Secure Tokens
+# Example 3 Secure Tokens
 
 In this set-up, we've realized that blindly trusting a source from beyond our trust boundary is inherently risky. We now create a signature of our original Authorization Token using a secret key only we know, we then send these together as the new Signed Authorization Token.
 
-Server side we now only accept Authorization Tokens that contain a signature. We then compute a new signature using the INCOMING encoded data part of this Authorization Token, we then compare that to the signature attached to the AuthorizationToken. This is to verify that the information contained within the encoded data section of the Authorization Token has not been modified, since an attacker would not be able to create the same signature without our secret key.
+Server side we now only accept Authorization Tokens that contain a signature. We then compute a new signature using the INCOMING encoded data part of this Authorization Token, we then compare that to the signature attached to the AuthorizationToken. This is to verify that the information contained within the encoded data section of the Authorization Token has not been modified, since an attacker would not be able to create the same signature without our secret key. 
 
 ![dev tools tab showing that an authorization token with an attached signature using the dot method](images/dev_auth_hmac.png)
 
 ## Running the Lab
 
-### 1. Move into the broken_access_control directory
-
-Using the docker terminal in the ```broken_access_control``` directory, move into the ```secure_app``` directory.
+### 1 Tear down and build the next experiment
 
 ```bash
+docker compose down
 cd ../secure_app
+docker compose up --build -d
 ```
 
-### 2. Build the Docker Containers
+In this setup, the backend server has been upgraded to now create HMAC signatures and attach them to the authorization tokens. The server will reject any request for admin permissions if the authorization token is missing a signature or the signature doesn't match the message.
 
-Using the docker terminal.
-
-```bash
-docker compose up --build
-```
-
-In this setup, the backend server has been upgraded to now create hmac signatures and attach them to the authorization tokens. The server will reject any request for admin permissions if the authorization token is missing a signature or the signature doesn't match the message.
-
-### 3.1 Open the website
+### 2 Verify Auth Token (optional)
 
 For this lab we are going to attempt to modify the Signed Authentication Token that we receive from the webserver. While you are not required to copy the Signed Authorization Token, it is important to see that this is an artifact that the client receives from the web server, and how now it has a signature attached to the end.
 
-Open [localhost:3000](http://localhost:3000).
+### 3 Run privilege_escalation.py
 
-### 3.2 Open the Browser's Developer Tools
-
-Press ```F12``` to open the developer tools on the mock website.
-
-### 3.3 View Network Activity
-
-Open the network tab on the developer toolbar and click on ```reload``.
-
-![dev tools tab with the mouse over the reload button on inside the network tab](images/dev_network_reload.png)
-
-This allows us to view the requests being sent back and forth between the client and the server. This is all easily accessible information and it is important to keep in mind when creating solutions, that nothing can be truly hidden from the client.
-
-### 3.4 View Authorization Token
-
-For this part of the simulation, we will continue to use the user ```Evelyn``` as they are just a member. 
-
-Click on the ```Log in: Evelyn``` button to login and receive Evelyn's Signed Authorization Token.
-
-In the Network tab you should see the ```POST``` request for the login. Clicking it will show you the request response. This response will contain the Signed Authorization Token for Evelyn, along with her ```user_data``` that the client.js uses to populate the fields.
-
-![dev tools tab showing that an authorization token with an attached signature using the dot method](images/dev_auth_hmac.png)
-
-### 3.5 Copy the Authorization Token (optional)
-
-While not required, you can copy and use the Authorization Token here and use it for ```privilege_escalation.py``` if you would like. The script itself, when not provided with a token, will attempt to find one for ```user_id = 1``` (Evelyn), whose role is a member and thus cannot access the admin panel.
-
-### 4.1 Move venv Terminal
-
-Move the venv terminal to the same directory.
-
-```bash
-cd ../secure_app
-```
-
-### 4.2 Run privilege_escalation.py
-
-Using the venv terminal, run ```privilege_escalation.py`` with or without the token from step 3.5.
+Run ```privilege_escalation.py`` with or without the auth token.
 
 ```bash
 python privilege_escalation.py
@@ -433,21 +270,16 @@ python privilege_escalation.py <token>
 
 This will show that with the newly signed token, we are unable to get the server to escalate our role. In fact, we get an Error 403 Forbidden since the server itself realizes that the data has been tampered with and will refuse to interact with any data that is attached to this token.
 
-You can now close this terminal.
+### 4. Stop the Containers
 
-### 5. Stop the Containers
+This is end of all experiments. We can now close the docker containers.
 
-In the docker terminal, press ```ctrl + c``` to stop the micro-services. 
-
-That is the end of this portion of the lab.
+```bash
+docker compose down
+```
 
 ## Impact
 
 With the introduction of a signed authorization token, we've now protected our stateless system from malicious actors seeking to gain access through this specific avenue.
 
-For the user, nothing has changed. In fact, clien.js required no modification of code once it was complete, since it simply accepts the Authorization Token, stores it, and then attaches it to as a request header going forward. The client doesn't care what it is, yet on the backend we've now ensured that our server is hardened against some of the most common attacks.
-
-# Technology Stack
-
-Python (Flask), Node.js (Express), Docker, Axios
-
+For the user, nothing has changed. In fact, client.js required no modification of code once it was complete, since it simply accepts the Authorization Token, stores it, and then attaches it to as a request header going forward. The client doesn't care what it is, yet on the backend we've now ensured that our server is hardened against some of the most common attacks.
